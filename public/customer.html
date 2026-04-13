@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Customer Access</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    /* General Page Styling */
+    body {
+      font-family: 'Arial', sans-serif;
+      background: white;
+      color: #333;
+      text-align: center;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    /* Animated Boxes */
+    .login-box, .qr-box, .details-box {
+      width: 350px;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+      border-radius: 15px;
+      box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+      transform: scale(0.9);
+      animation: popIn 0.5s ease-in-out forwards;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 90%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 2px solid black;
+      border-radius: 8px;
+      font-size: 16px;
+      text-align: center;
+      transition: border-color 0.3s ease-in-out;
+    }
+    input:focus {
+      border-color: #3498db;
+      outline: none;
+      box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      background: #3498db;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
+      transition: all 0.3s ease-in-out;
+      cursor: pointer;
+      border: none;
+    }
+    .btn:hover {
+      background: #2980b9;
+      transform: scale(1.05);
+    }
+    .link {
+      color: #007bff;
+      cursor: pointer;
+      text-decoration: underline;
+      font-size: 14px;
+    }
+    #qr-reader {
+      margin: 15px auto;
+      width: 300px;
+    }
+    .hidden {
+      display: none;
+    }
+    .back-link {
+      display: block;
+      margin-top: 15px;
+      color: #007bff;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    @keyframes popIn {
+      from {
+        transform: scale(0.7);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Box -->
+  <div class="login-box" id="auth-section">
+    <h1>Customer Access</h1>
+    <form id="auth-form">
+      <input type="email" id="email" name="email" placeholder="Enter your email" required>
+      <input type="password" id="password" name="password" placeholder="Enter your password" required>
+      <button type="submit" class="btn">Sign In</button>
+      <p>New here? <a href="#" id="toggle-signup">Create an account</a></p>
+    </form>
+  </div>
+
+  <!-- Sign-Up Section -->
+  <div class="login-box hidden" id="signup-section">
+    <h1>Create Account</h1>
+    <form id="signup-form">
+      <input type="text" id="fullname" name="fullname" placeholder="Full Name" required>
+      <input type="email" id="signup-email" name="signup-email" placeholder="Enter your email" required>
+      <input type="password" id="signup-password" name="signup-password" placeholder="Create a password" required>
+      <button type="submit" class="btn">Sign Up</button>
+      <p>Already have an account? <a href="#" id="back-to-login">Back to Login</a></p>
+    </form>
+  </div>
+
+  <!-- QR Scanner Section -->
+  <div class="qr-box hidden" id="qr-section">
+    <h1>Scan Medicine QR Code</h1>
+    <div id="qr-reader"></div>
+  </div>
+
+  <!-- Medicine Details Section -->
+  <div class="details-box hidden" id="medicine-details">
+    <h2>Medicine Details</h2>
+    <div id="details-content"></div>
+    <a href="#" class="back-link" id="back-home">⬅ Back to Scanner</a>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const authSection = document.getElementById("auth-section");
+      const signupSection = document.getElementById("signup-section");
+      const qrSection = document.getElementById("qr-section");
+      const medicineDetails = document.getElementById("medicine-details");
+      const detailsContent = document.getElementById("details-content");
+      let html5QrCode;
+      let userLocation = null;  // Global variable to store user's location
+
+      // Toggle between login/signup
+      document.getElementById("toggle-signup").addEventListener("click", (e) => {
+        e.preventDefault();
+        authSection.classList.add("hidden");
+        signupSection.classList.remove("hidden");
+      });
+
+      document.getElementById("back-to-login").addEventListener("click", (e) => {
+        e.preventDefault();
+        signupSection.classList.add("hidden");
+        authSection.classList.remove("hidden");
+      });
+
+      // Handle login
+      document.getElementById("auth-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        // Request location access when user logs in
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              userLocation = position.coords;
+              console.log("Location access granted:", userLocation);
+            },
+            (error) => {
+              console.error("Location access error:", error);
+            }
+          );
+        } else {
+          console.error("Geolocation is not supported by this browser.");
+        }
+        authSection.classList.add("hidden");
+        qrSection.classList.remove("hidden");
+        startScanner();
+      });
+
+      // Handle signup
+      document.getElementById("signup-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        alert("Account created successfully!");
+        signupSection.classList.add("hidden");
+        authSection.classList.remove("hidden");
+      });
+
+      // Start QR Scanner
+      function startScanner() {
+        Html5Qrcode.getCameras().then(cameras => {
+          if (cameras.length) {
+            html5QrCode = new Html5Qrcode("qr-reader");
+            html5QrCode.start(
+              cameras[0].id,
+              { fps: 10, qrbox: 250 },
+              onScanSuccess,
+              onScanFailure
+            ).catch(err => console.error("Scanner error:", err));
+          }
+        }).catch(err => console.error("Camera error:", err));
+      }
+
+      // Handle scan success: Parse the scanned QR code as JSON and display manufacturer details
+      function onScanSuccess(decodedText) {
+        html5QrCode.stop().then(() => {
+          qrSection.classList.add("hidden");
+          try {
+            const data = JSON.parse(decodedText);
+            // Build HTML content from manufacturer data
+            let locationInfo = "Location not available";
+            if (userLocation) {
+              locationInfo = `${userLocation.latitude.toFixed(5)}, ${userLocation.longitude.toFixed(5)}`;
+            }
+            let detailsHtml = `
+              <p><strong>Medicine Name:</strong> ${data.medicine_name || data.medicineName || "N/A"}</p>
+              <p><strong>Batch Number:</strong> ${data.batch_number || data.batchNumber || "N/A"}</p>
+              <p><strong>Manufacturing Date:</strong> ${data.manufacturing_date || data.manufacturingDate || "N/A"}</p>
+              <p><strong>Expiry Date:</strong> ${data.expiry_date || data.expiryDate || "N/A"}</p>
+              <p><strong>Temperature Required:</strong> ${data.temperature || "N/A"} °C</p>
+              <p><strong>Shipping Details:</strong> ${data.shipping_details || data.shippingDetails || "N/A"}</p>
+              <p><strong>Blockchain Hash:</strong> ${data.blockchain_hash || "N/A"}</p>
+              <p><strong>Your Location:</strong> ${locationInfo}</p>
+            `;
+            detailsContent.innerHTML = detailsHtml;
+            medicineDetails.classList.remove("hidden");
+          } catch (error) {
+            alert("Scanned QR code does not contain valid JSON data.");
+          }
+        }).catch(err => console.error("Stop error:", err));
+      }
+
+      function onScanFailure(error) {
+        // Optional error handling
+      }
+
+      // Back to scanner
+      document.getElementById("back-home").addEventListener("click", (e) => {
+        e.preventDefault();
+        medicineDetails.classList.add("hidden");
+        qrSection.classList.remove("hidden");
+        startScanner();
+      });
+    });
+  </script>
+</body>
+</html>

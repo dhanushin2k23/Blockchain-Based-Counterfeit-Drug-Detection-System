@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manufacturer Login</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f4f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      width: 400px;
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    h2 {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      text-align: left;
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #000;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .link {
+      color: #007bff;
+      cursor: pointer;
+      text-decoration: underline;
+      font-size: 14px;
+    }
+    #qr-container {
+      margin-top: 15px;
+      text-align: center; /* Ensures the generated QR code is centered */
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container" id="auth-container">
+    <h2 id="auth-title">Sign In</h2>
+    <form id="auth-form">
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="password" placeholder="Password" required>
+      <button type="submit" id="auth-button">Sign In</button>
+    </form>
+    <p>
+      <span id="toggle-auth" class="link">Create an account</span>
+    </p>
+  </div>
+
+  <div class="container" id="manufacturer-container" style="display: none;">
+    <h2>Manufacturer</h2>
+    <form id="manufacturer-form">
+      <input type="text" id="medicineName" placeholder="Medicine Name" required>
+      <input type="text" id="batchNumber" placeholder="Batch Number" required>
+      <label for="manufacturingDate">Manufacturing Date</label>
+      <input type="date" id="manufacturingDate" required>
+      <label for="expiryDate">Expiry Date</label>
+      <input type="date" id="expiryDate" required>
+      <input type="number" id="temperature" placeholder="Temperature Required (°C)" required>
+      <textarea id="shippingDetails" placeholder="Shipping Details" rows="2" required></textarea>
+      <button type="button" id="generateQR">Generate QR</button>
+    </form>
+    <div id="qr-container"></div>
+  </div>
+
+  <script>
+    let isSignUp = false;
+
+    document.getElementById("toggle-auth").addEventListener("click", function() {
+      isSignUp = !isSignUp;
+      document.getElementById("auth-title").innerText = isSignUp ? "Sign Up" : "Sign In";
+      document.getElementById("auth-button").innerText = isSignUp ? "Sign Up" : "Sign In";
+      this.innerText = isSignUp ? "Already have an account? Sign In" : "Create an account";
+    });
+
+    document.getElementById("auth-form").addEventListener("submit", function(event) {
+      event.preventDefault();
+      document.getElementById("auth-container").style.display = "none";
+      document.getElementById("manufacturer-container").style.display = "block";
+    });
+
+    document.getElementById("generateQR").addEventListener("click", function() {
+      const data = {
+        medicineName: document.getElementById("medicineName").value,
+        batchNumber: document.getElementById("batchNumber").value,
+        manufacturingDate: document.getElementById("manufacturingDate").value,
+        expiryDate: document.getElementById("expiryDate").value,
+        temperature: document.getElementById("temperature").value,
+        shippingDetails: document.getElementById("shippingDetails").value
+      };
+
+      document.getElementById("qr-container").innerHTML = "";
+      new QRCode(document.getElementById("qr-container"), JSON.stringify(data));
+    });
+  </script>
+
+</body>
+</html>

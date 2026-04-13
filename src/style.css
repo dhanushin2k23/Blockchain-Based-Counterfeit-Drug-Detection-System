@@ -1,0 +1,73 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+/* Base Body Styling */
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: url('background.png') no-repeat center center/cover; /* Background Image */
+  color: #333;
+  text-align: center;
+  height: 100vh;
+}
+
+/* Navigation Styling */
+nav {
+  background: rgba(0, 71, 171, 0.9); /* Slight transparency */
+  padding: 1.5rem 2rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Logo Styling */
+nav .logo img {
+  height: 40px;
+}
+
+/* Navigation Links */
+nav ul {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+nav ul li {
+  margin: 0 2rem;
+}
+
+nav ul li a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.6rem;
+  font-weight: 600;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+nav ul li a:hover {
+  color: #FFD700;
+  transform: scale(1.1);
+}
+
+/* Main Container */
+.container {
+  padding: 3rem;
+  background: rgba(255, 255, 255, 0.8); /* White transparent background */
+  border-radius: 12px;
+  display: inline-block;
+  margin-top: 10vh;
+}
+
+h1 {
+  font-size: 3.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+p {
+  font-size: 1.6rem;
+  margin-bottom: 2rem;
+}

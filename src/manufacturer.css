@@ -1,0 +1,130 @@
+/* manufacturer.css */
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+/* Animated Gradient Background for the Entire Page */
+@keyframes bgAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fbc2eb, #a6c1ee);
+  background-size: 400% 400%;
+  animation: bgAnimation 12s ease infinite;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Container with a bounce-in animation */
+@keyframes containerBounce {
+  0% { opacity: 0; transform: translateY(-40px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.container {
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 20px;
+  padding: 3rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 600px;
+  animation: containerBounce 1s ease-out;
+  text-align: center;
+}
+
+/* Heading styling */
+h2 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #333;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Form styling */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+label {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #555;
+  text-align: left;
+  margin-bottom: 0.3rem;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 1.2rem;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box;
+}
+
+input:focus, textarea:focus {
+  border-color: #ff758c;
+  box-shadow: 0 0 8px rgba(255, 117, 140, 0.5);
+}
+
+/* Submit Button Styling */
+.submit-btn {
+  background: linear-gradient(135deg, #ff758c, #ff7eb3);
+  border: none;
+  border-radius: 50px;
+  padding: 1.2rem;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.submit-btn:hover {
+  transform: translateY(-6px) scale(1.05);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Back Link Styling */
+.back-link {
+  margin-top: 2rem;
+  display: inline-block;
+  text-decoration: none;
+  color: #ff3b80;
+  font-weight: 600;
+  font-size: 1.4rem;
+  transition: color 0.3s ease;
+}
+
+.back-link:hover {
+  color: #c71585;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+  h2 {
+    font-size: 2.6rem;
+  }
+  input, textarea {
+    font-size: 1.1rem;
+    padding: 1rem;
+  }
+  .submit-btn {
+    font-size: 1.4rem;
+  }
+  .back-link {
+    font-size: 1.2rem;
+  }
+}

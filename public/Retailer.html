@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Retailer Access</title>
+  <!-- Include html5-qrcode library -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    /* Basic styling for login, signup, QR scanner, and details display */
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      margin-top: 20px;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      width: 350px;
+      text-align: center;
+    }
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      width: 95%;
+      padding: 10px;
+      border: none;
+      background: #007bff;
+      color: white;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .hidden { display: none; }
+    .link {
+      color: #007bff;
+      cursor: pointer;
+      text-decoration: underline;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Retailer Login Section -->
+  <div class="container" id="login-container">
+    <h2>Retailer Login</h2>
+    <form id="login-form">
+      <input type="email" id="login-email" placeholder="Email" required>
+      <input type="password" id="login-password" placeholder="Password" required>
+      <button type="submit">Sign In</button>
+    </form>
+    <p>New here? <span id="toggle-signup" class="link">Create an account</span></p>
+  </div>
+
+  <!-- Retailer Signup Section (Hidden by default) -->
+  <div class="container hidden" id="signup-container">
+    <h2>Create Retailer Account</h2>
+    <form id="signup-form">
+      <input type="text" id="signup-name" placeholder="Full Name" required>
+      <input type="email" id="signup-email" placeholder="Email" required>
+      <input type="password" id="signup-password" placeholder="Password" required>
+      <button type="submit">Sign Up</button>
+    </form>
+    <p>Already have an account? <span id="back-to-login" class="link">Back to Login</span></p>
+  </div>
+
+  <!-- QR Scanner Section -->
+  <div class="container hidden" id="qr-container">
+    <h2>Scan QR Code</h2>
+    <div id="qr-reader" style="width:300px;"></div>
+    <button id="stop-scan" class="hidden">Stop Scanning</button>
+  </div>
+
+  <!-- Medicine Details Display Section -->
+  <div class="container hidden" id="details-container">
+    <h2>Medicine Details</h2>
+    <div id="medicine-details"></div>
+    <button id="back-to-scan">Scan Another QR</button>
+  </div>
+
+  <script>
+    let html5QrCode;
+    let currentCameraId;
+    let userLocation = null; // Global variable to store the location coordinates
+
+    const loginContainer = document.getElementById("login-container");
+    const signupContainer = document.getElementById("signup-container");
+    const qrContainer = document.getElementById("qr-container");
+    const detailsContainer = document.getElementById("details-container");
+
+    // Toggle to show signup form
+    document.getElementById("toggle-signup").addEventListener("click", () => {
+      loginContainer.classList.add("hidden");
+      signupContainer.classList.remove("hidden");
+    });
+
+    // Toggle back to login form from signup
+    document.getElementById("back-to-login").addEventListener("click", () => {
+      signupContainer.classList.add("hidden");
+      loginContainer.classList.remove("hidden");
+    });
+
+    // Handle Login Form Submission
+    document.getElementById("login-form").addEventListener("submit", function(event) {
+      event.preventDefault();
+      
+      // Request location access as soon as the user logs in.
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            userLocation = position.coords;
+            console.log("Location access granted:", userLocation);
+          },
+          (error) => {
+            console.error("Location access error:", error);
+          }
+        );
+      } else {
+        console.error("Geolocation is not supported by this browser.");
+      }
+      
+      // Hide the login container and show the QR scanner.
+      loginContainer.classList.add("hidden");
+      qrContainer.classList.remove("hidden");
+      startScanning();
+    });
+
+    // Handle Signup Form Submission
+    document.getElementById("signup-form").addEventListener("submit", function(event) {
+      event.preventDefault();
+      // In a real application, add signup logic here.
+      alert("Account created successfully!");
+      signupContainer.classList.add("hidden");
+      loginContainer.classList.remove("hidden");
+    });
+
+    // Function to start QR code scanning
+    function startScanning() {
+      Html5Qrcode.getCameras().then(cameras => {
+        if (cameras && cameras.length) {
+          currentCameraId = cameras[0].id;
+          html5QrCode = new Html5Qrcode("qr-reader");
+          html5QrCode.start(
+            currentCameraId,
+            {
+              fps: 10,
+              qrbox: 250
+            },
+            onScanSuccess,
+            onScanFailure
+          ).catch(err => {
+            console.error("Unable to start scanning", err);
+          });
+        }
+      }).catch(err => {
+        console.error("Error getting cameras", err);
+      });
+    }
+
+    // Callback when a QR code is successfully scanned
+    function onScanSuccess(decodedText, decodedResult) {
+      console.log("QR Code scanned:", decodedText);
+      // Stop the scanner once a QR code is detected.
+      html5QrCode.stop().then(() => {
+        qrContainer.classList.add("hidden");
+        // Attempt to parse the scanned text as JSON.
+        try {
+          const data = JSON.parse(decodedText);
+          displayMedicineDetails(data);
+        } catch (error) {
+          alert("Scanned QR code does not contain valid data.");
+        }
+      }).catch(err => {
+        console.error("Failed to stop scanning", err);
+      });
+    }
+
+    // Optional: Callback for scan failure (can log errors)
+    function onScanFailure(error) {
+      console.warn("QR scan failure:", error);
+    }
+
+    // Function to display the scanned medicine details along with location info
+    function displayMedicineDetails(data) {
+      let locationInfo = "N/A";
+      if (userLocation) {
+        locationInfo = `${userLocation.latitude.toFixed(5)}, ${userLocation.longitude.toFixed(5)}`;
+      }
+      
+      let detailsHtml = `
+        <p><strong>Medicine Name:</strong> ${data.medicineName || data.medicine_name || "N/A"}</p>
+        <p><strong>Batch Number:</strong> ${data.batchNumber || data.batch_no || data.batch_number || "N/A"}</p>
+        <p><strong>Manufacturing Date:</strong> ${data.manufacturingDate || data.manufacturing_date || "N/A"}</p>
+        <p><strong>Expiry Date:</strong> ${data.expiryDate || data.expiry_date || "N/A"}</p>
+        <p><strong>Temperature Required:</strong> ${data.temperature || "N/A"} °C</p>
+        <p><strong>Shipping Details:</strong> ${data.shippingDetails || data.shipping_details || "N/A"}</p>
+        <p><strong>Blockchain Hash:</strong> ${data.blockchain_hash || "N/A"}</p>
+        <p><strong>Location:</strong> ${locationInfo}</p>
+      `;
+      document.getElementById("medicine-details").innerHTML = detailsHtml;
+      detailsContainer.classList.remove("hidden");
+    }
+
+    // Option to restart scanning (for scanning another QR code)
+    document.getElementById("back-to-scan").addEventListener("click", function() {
+      detailsContainer.classList.add("hidden");
+      qrContainer.classList.remove("hidden");
+      startScanning();
+    });
+  </script>
+</body>
+</html>
